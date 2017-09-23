@@ -11,7 +11,8 @@ public class ChessBoard {
 	private int[] q_location;
 	private int num_queens;
 	private int current_board_state_h;
-	private ArrayList<Tuple> next_move;
+	//private ArrayList<Tuple> next_move;
+	private int plateau_counter;
 	
 	ChessBoard(int n){
 		this.board = new int[n][n];
@@ -19,10 +20,17 @@ public class ChessBoard {
 		this.num_queens = n;
 		this.randomly_place_queens();
 		this.current_board_state_h = single_config_heuristic(this.q_location);
+		this.plateau_counter = 0;
 	}
 	
 	
 	public void randomly_place_queens() {
+		//clear the board
+		for(int i = 0; i < this.num_queens; i++) {
+			for(int j = 0; j < this.num_queens; j++) {
+				this.board[i][j] = 0;
+			}
+		}
 		int randint;
 		// Iterate through each column and randomly place a queen (-1) in that column 
 		for(int i = 0; i < this.num_queens; i++) {
@@ -30,13 +38,100 @@ public class ChessBoard {
 			board[randint][i] = -1;
 			
 			//keep track of where the queens are, i is (column), # at i is (row)
-			q_location[i] = randint; 	
+			this.q_location[i] = randint; 	
 		}
 		
 	}
 	
+	
+	public void solve() {
+		next_state_board_heuristic();
+		Tuple position_to_move_to = next_move();
+		//problem here
+		//while(!position_to_move_to.equals(new Tuple(0,0)))  {   <<------change to what is at the tuple not the location itself
+			
+			if(position_to_move_to.equals(new Tuple(-1,-1))) {
+				//Failure. reset board and try again
+				//Output that there was a restart
+				if(plateau_counter == 200) {
+					System.out.println("Stuck on plateau. Restart.");
+				}
+				else
+					System.out.println("No decreasing move or side step available. Restart.");
+				
+				randomly_place_queens();
+				next_state_board_heuristic();
+				position_to_move_to = next_move();
+				continue;
+			}
+			
+			//Move the queen. Sorry this is hard to understand
+			this.board[this.q_location[position_to_move_to.b]][position_to_move_to.b] = 0; 
+			this.q_location[position_to_move_to.b] = position_to_move_to.a;
+			this.board[this.q_location[position_to_move_to.b]][position_to_move_to.a] = -1;
+			
+			//run heuristic
+			next_state_board_heuristic();
+			//get next move
+			position_to_move_to = next_move();
+		}
+		
+	}
+	
+	
+	private Tuple next_move() {
+		
+		Tuple nextmove = new Tuple(-1,-1);
+		ArrayList<Tuple> possible_moves = new ArrayList<Tuple>();
+		int min_conflicts = this.current_board_state_h;
+		boolean side_step_available = false;
+		
+		//find what the smallest next step is
+		for(int i = 0; i < this.num_queens; i++) {
+			for(int j = 0; j < this.num_queens; j++) {
+				if(this.board[i][j] != -1 && this.board[i][j] < min_conflicts) {
+					min_conflicts = this.board[i][j];
+				}
+				if(this.board[i][j] == this.current_board_state_h) {
+					side_step_available = true;
+				}
+			}
+		}
+		//There is no next state of lesser conflict and there is no next state with equal conflict
+		//Therefore declare failure by returning (-1, -1) coordinate
+		if(min_conflicts == this.current_board_state_h && side_step_available == false) {
+			return nextmove;
+		}
+		
+		//The case of a side step needs to be counted
+		else if(min_conflicts == this.current_board_state_h) {
+			this.plateau_counter++;
+			
+		}
+		//else there will be an improved next state, and there is no plateau so reset counter
+		else
+			this.plateau_counter = 0;
+		
+		//gather all of the coordinates with the minimum number of next state conflicts (it may be a side step)
+		for(int i = 0; i < this.num_queens; i++) {
+			for(int j = 0; j < this.num_queens; j++) {
+				if(this.board[i][j] == min_conflicts) {
+					possible_moves.add(new Tuple(i,j));
+				}
+			}
+		}
+		//set the current state as the next state
+		this.current_board_state_h = min_conflicts;
+
+		//randomly pick from possible moves
+		int randint = ThreadLocalRandom.current().nextInt(0, possible_moves.size());
+		nextmove = possible_moves.get(randint);
+		return nextmove;
+	}
+	
+	
 	//gives the number of conflicts for every next state 
-	public void next_state_board_heuristic() {
+	private void next_state_board_heuristic() {
 		int[] temp_qloc = this.q_location.clone();
 		//Deep copy board
 		int[][] temp_board = Arrays.stream(this.board).map(int[]::clone).toArray(int[][]::new);
@@ -69,7 +164,7 @@ public class ChessBoard {
 			h += num_attacks_heuristic(qloc[i], i);
 		}
 		
-		return h;
+		return h/2;
 	}
 	
 	

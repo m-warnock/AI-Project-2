@@ -3,7 +3,7 @@ package nqueens;
 public class NQueens {
 	
 	public static void main(String args[]) {
-		ChessBoard game_board = new ChessBoard(4);
+		ChessBoard game_board = new ChessBoard(8);
 		game_board.print_board();
 		System.out.println("\n\n\n-----------------------------------------");
 		//game_board.next_state_board_heuristic();

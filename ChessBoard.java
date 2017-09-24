@@ -47,34 +47,44 @@ public class ChessBoard {
 	public void solve() {
 		next_state_board_heuristic();
 		Tuple position_to_move_to = next_move();
-		//problem here
-		//while(!position_to_move_to.equals(new Tuple(0,0)))  {   <<------change to what is at the tuple not the location itself
+		
+		while(this.current_board_state_h != 0)  {   
 			
-			if(position_to_move_to.equals(new Tuple(-1,-1))) {
-				//Failure. reset board and try again
-				//Output that there was a restart
-				if(plateau_counter == 200) {
-					System.out.println("Stuck on plateau. Restart.");
-				}
+			//If Failure. reset board and try again
+			//Output that there was a restart
+			if(plateau_counter == 200 || position_to_move_to.equals(new Tuple(-1,-1))) {
+				if(plateau_counter == 200)
+				System.out.println("Stuck on plateau. Restart.");
+				
 				else
 					System.out.println("No decreasing move or side step available. Restart.");
-				
 				randomly_place_queens();
 				next_state_board_heuristic();
 				position_to_move_to = next_move();
 				continue;
 			}
-			
 			//Move the queen. Sorry this is hard to understand
-			this.board[this.q_location[position_to_move_to.b]][position_to_move_to.b] = 0; 
+			//take the queen off the board at its old location (queen from the same column as the new position)
+			this.board[this.q_location[position_to_move_to.b]][position_to_move_to.b] = 0;
+			
+			//add its new location on the q_location array
 			this.q_location[position_to_move_to.b] = position_to_move_to.a;
-			this.board[this.q_location[position_to_move_to.b]][position_to_move_to.a] = -1;
+			
+			//put the queen in its new location on the actual board
+			this.board[this.q_location[position_to_move_to.b]][position_to_move_to.b] = -1;
 			
 			//run heuristic
 			next_state_board_heuristic();
 			//get next move
 			position_to_move_to = next_move();
 		}
+		
+		//move the queen the last time
+		this.board[this.q_location[position_to_move_to.b]][position_to_move_to.b] = 0;
+		this.q_location[position_to_move_to.b] = position_to_move_to.a;
+		this.board[this.q_location[position_to_move_to.b]][position_to_move_to.b] = -1;
+		//output results
+		print_board();
 		
 	}
 	
@@ -195,7 +205,10 @@ public class ChessBoard {
 	public void print_board() {
 		for(int i = 0; i < this.num_queens; i++) {
 			for(int j = 0; j < this.num_queens; j++) {
-				System.out.print(this.board[i][j] + " ");
+				if(this.board[i][j] == -1)
+					System.out.print("Q   ");
+				else
+					System.out.print("X   ");
 			}
 			System.out.println("\n");
 		}

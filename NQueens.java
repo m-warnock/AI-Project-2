@@ -1,18 +1,26 @@
 package nqueens;
 
+import java.util.Scanner;
+
 public class NQueens {
 	
 	public static void main(String args[]) {
-		ChessBoard game_board = new ChessBoard(8);
+		Scanner scanner = new Scanner(System.in);
+		
+		//get input
+		System.out.println("Enter the size of the board you want to solve for: ");
+		String input = scanner.nextLine();
+		int N = Integer.parseInt(input);
+		scanner.close();
+		
+		//print initial state
+		System.out.println("\nGenerated " + N + " x " + N + " starting board: ");
+		ChessBoard game_board = new ChessBoard(N);
 		game_board.print_board();
-		System.out.println("\n\n\n-----------------------------------------");
-		//game_board.next_state_board_heuristic();
+		
+		//print solved 
+		System.out.println("\n\nSolved Board:\n");
 		game_board.solve();
-		//game_board.print_board();
-		//Tuple next_move;
-		//next_move = game_board.next_move();
-		//System.out.print("\n" + next_move.a + " " + next_move.b);
-		//game_board.print_queen_arr();
-
+		
 	}
 }

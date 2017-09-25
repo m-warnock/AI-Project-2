@@ -9,6 +9,7 @@ public class Tuple {
 		this.b = b;
 	}
 	
+	//equals comparison overload
 	public boolean equals(Tuple T) {
 		if(T == null) return false;
 		if(T.getClass() != getClass()) return false;

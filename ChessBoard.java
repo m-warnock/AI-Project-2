@@ -11,7 +11,6 @@ public class ChessBoard {
 	private int[] q_location;
 	private int num_queens;
 	private int current_board_state_h;
-	//private ArrayList<Tuple> next_move;
 	private int plateau_counter;
 	
 	ChessBoard(int n){
@@ -52,12 +51,15 @@ public class ChessBoard {
 			
 			//If Failure. reset board and try again
 			//Output that there was a restart
-			if(plateau_counter == 200 || position_to_move_to.equals(new Tuple(-1,-1))) {
-				if(plateau_counter == 200)
-				System.out.println("Stuck on plateau. Restart.");
+			if(this.plateau_counter == 200 || position_to_move_to.equals(new Tuple(-1,-1))) {
+				if(this.plateau_counter == 200) {
+					System.out.println("Stuck on plateau. Restart.");
+					this.plateau_counter = 0;
+				}
 				
 				else
 					System.out.println("No decreasing move or side step available. Restart.");
+				
 				randomly_place_queens();
 				next_state_board_heuristic();
 				position_to_move_to = next_move();
@@ -219,8 +221,6 @@ public class ChessBoard {
 		for(int i = 0; i < this.num_queens; i++) {
 			System.out.println("(" + this.q_location[i] + ", " + i + ")  " + board[this.q_location[i]][i]);
 		}
-		
-		
 	}
 	
 }

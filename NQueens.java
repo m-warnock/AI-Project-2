@@ -1,3 +1,8 @@
+// Michael Warnock
+// CS 461
+// Project 2 - N Queens
+// September 24, 2017
+
 package nqueens;
 
 import java.util.Scanner;
